@@ -2,29 +2,25 @@
 public class AdversarialSearch {
 
 	static public int startSearch(BoardState inBoard, int maxdepth) {
-		BoardState CurrentBoard = new BoardState();
-		CurrentBoard.setBoard(inBoard);
-		int maxScore = -100000;
+		BoardState CurrentStartBoard = new BoardState();
+		CurrentStartBoard.setBoard(inBoard);
+		int maxScore = -1000000;
 		int row = 0;
 		int col = 0;
-		int alpha = -100000;
-		int beta = 100000;
-		int depth = 0;
+		int alpha = -1000000;
+		int beta = 1000000;
+		int depth = 1;
 		
-		for (int i = 0; i < 7; i++){
-			for(int j = 0; j < 7; j++){
+		for (int i = 0; i < 8; i++){
+			for(int j = 0; j < 8; j++){
 				if (alpha < beta){
-					if(CurrentBoard.getSpace(i,j) == 0) {
+					if(CurrentStartBoard.getSpace(i,j) == 0) {
 					try {
-						BoardState outboard = new BoardState();
-						outboard.setBoard(CurrentBoard);
-						
-							outboard.setSpace(i, j, 1);
-						if (depth + 1 != maxdepth){
-							if (CurrentBoard.getSpace(i, j) == 0){
-								
-								int passback = Min(alpha, beta, depth++, maxdepth, outboard);
-							
+						BoardState outStartboard = new BoardState();
+						outStartboard.NewBoard();
+						outStartboard.setBoard(CurrentStartBoard);
+							outStartboard.setSpace(i, j, 1);
+								int passback = Min(alpha, beta, depth, maxdepth, outStartboard);
 								if(passback > maxScore){
 									maxScore = passback;
 									row = i;
@@ -32,50 +28,49 @@ public class AdversarialSearch {
 								}
 								if(passback > alpha)
 									alpha = maxScore;
-						
-							}
-						}
-						else{
-							return (row * 8) + col;
-						}
+							
 					} catch (WinningMoveException e) {
 						maxScore = e.getScore();
 						row = i;
 						col = j;
+						if(e.getScore() > alpha)
+							alpha = maxScore;
 					}
 					}
 										
 				}
 				else{
+						//System.out.println("Top level prune");
+						//System.out.println("TopLevel: " + maxScore +" depth: " + depth);
 						return (row * 8) + col;
 					}
 				}
 			}		
-		
-		return (row * 8) + col;
-		
+		//System.out.println("TopLevel: " + maxScore +" depth: " + depth);
+		return (row * 8) + col;	
 	}
 	
-	static private int Max(int alpha, int beta, int depth, int maxdepth, BoardState inBoard){
+	static private int Max(int alpha, int beta, int indepth, int maxdepth, BoardState inMaxBoard){
 	
-		BoardState CurrentBoard = new BoardState();
-		CurrentBoard.setBoard(inBoard);
+		
 		int maxScore = -100000;
 		int row = 0;
 		int col = 0;
+		int depth = indepth;
+		depth++;
 		
-		for (int i = 0; i < 7; i++){
-			for(int j = 0; j < 7; j++){
+		for (int i = 0; i < 8; i++){
+			for(int j = 0; j < 8; j++){
 				if (alpha < beta){
-					if(CurrentBoard.getSpace(i, j) == 0) {
+					if(inMaxBoard.getSpace(i, j) == 0) {
 					try {
 						BoardState outboard = new BoardState();
-						outboard.setBoard(CurrentBoard);
+						outboard.setBoard(inMaxBoard);
 						outboard.setSpace(i, j, 1);
-						if (depth + 1 != maxdepth){
-							if (CurrentBoard.getSpace(i, j) == 0){
+						if (indepth < maxdepth){
+							if (inMaxBoard.getSpace(i, j) == 0){
 								
-								int passback = Min(alpha, beta, depth++, maxdepth, outboard);
+								int passback = Min(alpha, beta, depth, maxdepth, outboard);
 							
 								if(passback > maxScore){
 									maxScore = passback;
@@ -94,46 +89,50 @@ public class AdversarialSearch {
 						maxScore = e.getScore();
 						row = i;
 						col = j;
+						if(e.getScore() > alpha)
+							alpha = maxScore;
 					}
 					}
 					
 					
 				}
 				else{
+						//System.out.println("Max Prune");
+						//System.out.println("Max: " + maxScore +" depth: " + depth);
 						return maxScore;
 					}
 				}
 			}		
-		
+		//System.out.println("min: " + maxScore +" depth: " + depth);
 		return maxScore;
 		}
 		
-	static private int Min(int alpha, int beta, int depth, int maxdepth, BoardState inBoard){
-		BoardState CurrentBoard = new BoardState();
-		CurrentBoard.setBoard(inBoard);
+	static private int Min(int alpha, int beta, int indepth, int maxdepth, BoardState inMinBoard){
 		int minScore = 100000;
 		int row = 0;
 		int col = 0;
+		int depth = indepth;
+		depth++;
 		
-		for (int i = 0; i < 7; i++){
-			for(int j = 0; j < 7; j++){
+		for (int i = 0; i < 8; i++){
+			for(int j = 0; j < 8; j++){
 				if (alpha < beta){
-					if(CurrentBoard.getSpace(i, j) == 0) {
+					if(inMinBoard.getSpace(i, j) == 0) {
 					try {
 						BoardState outboard = new BoardState();
-						outboard.setBoard(CurrentBoard);
-						outboard.setSpace(i, j, 1);
-						if (depth + 1 != maxdepth){
-							if (CurrentBoard.getSpace(i, j) == 0){
+						outboard.setBoard(inMinBoard);
+						outboard.setSpace(i, j, -1);
+						if (indepth < maxdepth){
+							if (inMinBoard.getSpace(i, j) == 0){
 								
-								int passback = Max(alpha, beta, depth++, maxdepth, outboard);
+								int passback = Max(alpha, beta, depth, maxdepth, outboard);
 							
 								if(passback < minScore){
 									minScore = passback;
 									row = i;
 									col = j;
 								}
-								if(passback > alpha)
+								if(passback < beta)
 									beta = minScore;
 						
 							}
@@ -142,25 +141,30 @@ public class AdversarialSearch {
 							return Evaluate(outboard);
 						}
 					} catch (WinningMoveException e) {
-						// TODO Auto-generated catch block
 						minScore = e.getScore();
+						row = i;
+						col = j;
+						if(e.getScore() < beta)
+							beta = minScore;
 					}
 					}
 					
 					
 				}
 				else{
+						//System.out.println("Prune min");
+						//System.out.println("min: " + minScore +" depth: " + depth);
 						return minScore;
 					}
 				}
 			}		
-		
+		//System.out.println("min: " + minScore +" depth: " + depth);
 		return minScore;		
 	}
 	
 	static private int Evaluate(BoardState inBoard){
 		
-		return 0;
+		return Hueristic.AnalyzeBoard(inBoard);
 	}
 	
 }
