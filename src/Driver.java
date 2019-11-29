@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -114,6 +115,14 @@ public class Driver {
 		String line1 = "  1 2 3 4 5 6 7 8    Player vs. Opponent";
 		String space = "                         ";
 		char[] row = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+		
+		try {
+			CLS.clear();
+		} catch (IOException e) {
+			System.out.print(e.getMessage() + e.getStackTrace());
+		} catch (InterruptedException e) {
+			System.out.print(e.getMessage() + e.getStackTrace());
+		}
 		System.out.println(line1);
 		for(int i = 0; i < 8; i++) {
 			System.out.print(row[i] + " " + piece(i,0,board) + " " + piece(i,1,board)+ " " + piece(i,2,board)+ " " + piece(i,3,board)+ " " + piece(i,4,board)+ " " + piece(i,5,board)+ " " + piece(i,6,board)+ " " + piece(i,7,board));
