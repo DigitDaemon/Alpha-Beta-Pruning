@@ -18,7 +18,7 @@ public class IterativeDeepening {
 			System.out.println("Elapsed Time: " + elapsedTime/1000);
 			System.out.println("Last Time: " + lastRun/1000);
 			i++;
-		}while ((elapsedTime + lastRun * 10) < 18000);
+		}while ((elapsedTime + lastRun * 20) < 18000);
 		
 		return move;
 	}
